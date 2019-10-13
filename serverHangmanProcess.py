@@ -63,8 +63,18 @@ def guess_handler():
             if ''.join(currently_guessed) == session['challenge']:
                 game_over = True
                 game_over_message = 'Awesome! You won!'
+                conn = sqlite3.connect('hangman.db')
+                sql = ''' UPDATE leaderboard SET score = ? ,
+                  username = ? 
+              WHERE difficulty = ? and score < ? '''
+                cur = conn.cursor()
+                cur.execute(sql, (100*session['wrong_guesses_left'], session['username'], session['difficulty'], 100*session['wrong_guesses_left']))
+                conn.commit()
+                print('sql updated')
         print(session)
     guess_json = {'guessed': session['guessed'], 'wrong_guesses_left': session['wrong_guesses_left'], 'wrong_guesses': session['wrong_guesses'], 'game_over':game_over, 'game_over_message':game_over_message}
+    if game_over:
+        guess_json['guessed'] = list(session['challenge'])
     return json.dumps(guess_json)#'Your guess was ' + str(letter)
 
 @app.route('/leaderboard')

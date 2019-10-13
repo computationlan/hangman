@@ -23,19 +23,25 @@
 		<p id ='challenge'></p>
 		<p id ='alphabet'></p>
 	</div>
-	<div id='leaderboard' >
-		<p>Leaderboard</p>
+	<div >
+		<p>*** Leaderboard ***</p>
+		<table>
+			<thead>
+        		<tr>
+            		<th>Difficulty</th>
+            		<th>Score</th>
+            		<th>Name</th>
+        		</tr>
+        		<tbody id='leaderboard'>
+        		</tbody>
+    		</thead>
+		</table>
 	</div>
 	<script>
 		function refreshTree(wrong_guesses_left) {
 			var img = document.getElementById('tree');
 			img.src = '/static/tree-image-' + (6 - wrong_guesses_left).toString() + '.png';
 			img.width = '300';
-		}
-
-		function drawWord(n) {
-			console.log(n.join(' '));
-			document.getElementById('challenge').innerHTML = n.join(' ');
 		}
 
 		function drawAlphabet(wrong_guesses, guessed, game_over) {
@@ -63,10 +69,11 @@
 						var jsonResponse = JSON.parse(xhttp.responseText);	
 						console.log(jsonResponse, jsonResponse['guessed'])
 						refreshTree(jsonResponse['wrong_guesses_left']);
-						drawWord(jsonResponse['guessed']);
+						document.getElementById('challenge').innerHTML = jsonResponse['guessed'].join(' ');
 						drawAlphabet(jsonResponse['wrong_guesses'], jsonResponse['guessed'], jsonResponse['game_over']);
 						if (jsonResponse['game_over']){
 							document.getElementById('game_over').innerHTML = jsonResponse['game_over_message'];
+							getLeaderboard();
 						}
 					}
 					};
@@ -76,6 +83,7 @@
 				foo.appendChild(element);
 			}
 		}
+
 		function gameInit() {
 			const form = document.querySelector('form');
 			const data = new URLSearchParams(new FormData(form).entries());
@@ -87,7 +95,7 @@
 				console.log( xhttp.responseText );
 				var jsonResponse = JSON.parse(xhttp.responseText);	
 				refreshTree(jsonResponse['wrong_guesses_left']);
-				drawWord(jsonResponse['guessed']);	
+				document.getElementById('challenge').innerHTML = jsonResponse['guessed'].join(' ');
 				drawAlphabet([], [], false);	
 				document.getElementById('game_over').innerHTML = '';
 				}
@@ -95,7 +103,29 @@
 			xhttp.send();
 		}
 
-		
+		function getLeaderboard() {
+			var xhttp = new XMLHttpRequest();
+			xhttp.open('GET', '/leaderboard?', true);
+			xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				var jsonResponse = JSON.parse(xhttp.responseText);	
+				document.getElementById('leaderboard').innerHTML = '';
+				tbody = document.getElementById('leaderboard');				
+				for (row of jsonResponse){
+    				var tr = document.createElement('tr'); 
+    				for (field of ['difficulty', 'score', 'username']){
+    					var td = document.createElement('td');
+    					td.appendChild(document.createTextNode(row[field]));
+    					tr.appendChild(td);
+    				}  
+    				tbody.appendChild(tr);
+				}
+				}
+			};
+			xhttp.send();
+		} 
+		getLeaderboard();
+		setInterval(getLeaderboard, 60000);
 	</script>
 </body>
 </html>
