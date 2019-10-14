@@ -1,153 +1,66 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-	<title>Shall we play?</title>
+    <title>Shall we play?</title>
+    <script type="text/javascript" src="static/hangman.js"></script>
 </head>
-<body >
-	<div id='game_setup' >
-		<form id='game_init'>
-			<fieldset>
-  			<legend>Game parameters:</legend>
-    		Name:<br>
-    		<input type='text' name='username' value='Anonymous'><br>
-    		{% if request.args.get('share_id') != None %}
-    		<input type='hidden' name='challenge_id' value="{{request.args.get('share_id')}}">
-    		<input type='button' onclick='gameInit(); return false;' value="Accept {{request.args.get('friend_name')}}'s challenge">
-    		{% else %}
-    		Difficulty:<br>
-    		<select name='difficulty'>
-    			<option value='1' selected>1</option>
-    			<option value='2'>2</option>
-    			<option value='3'>3</option>
-    			<option value='4'>4</option>
-    			<option value='5'>5</option>
-    			<option value='6'>6</option>
-    			<option value='7'>7</option>
-    			<option value='8'>8</option>
-    			<option value='9'>9</option>
-    			<option value='10'>10</option>  
-			</select>
-    		<input type='button' onclick='gameInit(); return false;' value='New game'>
-    		{% endif %}
-  			</fieldset>
-		</form>
-	</div>
-	<div id='game_field' >
-		<p>The objective of the game is to guess the hidden word in as fewer steps as possible. You are allowed up to 6 incorrect guesses.</p>
-		<p id='game_over'></p>
-		<p id='share_link'></p>
-		<img id ='tree'></img>
-		<p id ='challenge'></p>
-		<p id ='alphabet'></p>
-	</div>
-	<div >
-		<p>*** Leaderboard ***</p>
-		<table>
-			<thead>
-        		<tr>
-            		<th>Difficulty</th>
-            		<th>Score</th>
-            		<th>Name</th>
-        		</tr>
-        		<tbody id='leaderboard'>
-        		</tbody>
-    		</thead>
-		</table>
-	</div>
-	<script>
-		function refreshTree(wrong_guesses_left) {
-			var img = document.getElementById('tree');
-			img.src = '/static/tree-image-' + (6 - wrong_guesses_left).toString() + '.png';
-			img.width = '300';
-		}
 
-		function drawAlphabet(wrong_guesses, guessed, game_over) {
-			document.getElementById('alphabet').innerHTML = '';
-			for (letter of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ') {
-				var element = document.createElement('input');
-				element.setAttribute('type', 'button');
-				element.setAttribute('value', letter);
-				element.setAttribute('name', letter);
-				element.disabled = game_over;
-				if (wrong_guesses.includes(letter)) {
-					element.style.color = 'red';
-					element.disabled = true;
-				} else if (guessed.includes(letter)) {
-					element.style.color = 'green';
-					element.disabled = true;
-				}
-				element.onclick = function() {
-    				letterGuessed = this.value;
-    				var xhttp = new XMLHttpRequest();
-					xhttp.open('GET', '/guess_handler?letterGuessed='+letterGuessed, true);
-					xhttp.onreadystatechange = function() {
-					if (this.readyState == 4 && this.status == 200) {
-						console.log( xhttp.responseText );
-						var jsonResponse = JSON.parse(xhttp.responseText);	
-						console.log(jsonResponse, jsonResponse['guessed'])
-						refreshTree(jsonResponse['wrong_guesses_left']);
-						document.getElementById('challenge').innerHTML = jsonResponse['guessed'].join(' ');
-						drawAlphabet(jsonResponse['wrong_guesses'], jsonResponse['guessed'], jsonResponse['game_over']);
-						if (jsonResponse['game_over']){
-							document.getElementById('game_over').innerHTML = jsonResponse['game_over_message'];
-							document.getElementById('challenge').innerHTML = jsonResponse['challenge'];
-							getLeaderboard();
-							if ('share_id' in jsonResponse){
-								console.log(jsonResponse['share_id'], typeof(jsonResponse['share_id']));
-								document.getElementById('share_link').innerHTML = '<a href="http://localhost:5000/?share_id=' + jsonResponse['share_id'].toString() + '&friend_name=' + jsonResponse['friend_name'] + '">Want to share this challenge with your friend?</a> <a href="http://localhost:5000/">Or play again?</a>' ;
-							}
-						}
-					}
-					};
-					xhttp.send();
-  				};
-				var foo = document.getElementById('alphabet');
-				foo.appendChild(element);
-			}
-		}
-
-		function gameInit() {
-			const form = document.querySelector('form');
-			const data = new URLSearchParams(new FormData(form).entries());
-			console.log(data);
-			var xhttp = new XMLHttpRequest();
-			xhttp.open('GET', '/game_init?'+data, true);
-			xhttp.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-				console.log( xhttp.responseText );
-				var jsonResponse = JSON.parse(xhttp.responseText);	
-				refreshTree(jsonResponse['wrong_guesses_left']);
-				document.getElementById('challenge').innerHTML = jsonResponse['guessed'].join(' ');
-				drawAlphabet([], [], false);	
-				document.getElementById('game_over').innerHTML = '';
-				}
-			};
-			xhttp.send();
-		}
-
-		function getLeaderboard() {
-			var xhttp = new XMLHttpRequest();
-			xhttp.open('GET', '/leaderboard?', true);
-			xhttp.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-				var jsonResponse = JSON.parse(xhttp.responseText);	
-				document.getElementById('leaderboard').innerHTML = '';
-				tbody = document.getElementById('leaderboard');				
-				for (row of jsonResponse){
-    				var tr = document.createElement('tr'); 
-    				for (field of ['difficulty', 'score', 'username']){
-    					var td = document.createElement('td');
-    					td.appendChild(document.createTextNode(row[field]));
-    					tr.appendChild(td);
-    				}  
-    				tbody.appendChild(tr);
-				}
-				}
-			};
-			xhttp.send();
-		} 
-		getLeaderboard();
-		setInterval(getLeaderboard, 60000);
-	</script>
+<body>
+    <div id='game_setup'>
+        <form id='game_init'>
+            <fieldset>
+                <legend>Game parameters:</legend>
+                Name: <br/>
+                <input type='text' name='username' value='Anonymous'> <br/> 
+                {% if request.args.get('share_id') != None %}
+                <input type='hidden' name='challenge_id' value="{{request.args.get('share_id')}}">
+                <input type='button' onclick='gameInit(); return false;' value="Accept {{request.args.get('friend_name')}}'s challenge"> 
+                {% else %} 
+                Difficulty: <br/>
+                <select name='difficulty'>
+                    <option value='1' selected>1</option>
+                    <option value='2'>2</option>
+                    <option value='3'>3</option>
+                    <option value='4'>4</option>
+                    <option value='5'>5</option>
+                    <option value='6'>6</option>
+                    <option value='7'>7</option>
+                    <option value='8'>8</option>
+                    <option value='9'>9</option>
+                    <option value='10'>10</option>
+                </select> 
+                <input type='button' onclick='gameInit(); return false;' value='New game'> 
+                {% endif %}
+            </fieldset>
+        </form>
+    </div>
+    <div id='game_field'>
+        <p>The objective of the game is to guess the hidden word in as fewer steps as possible. You are allowed up to 6 incorrect guesses.</p>
+        <p id='game_over'></p>
+        <p id='share_link'></p>
+        <img width='300' id='tree'></img>
+        <p id='challenge'></p>
+        <p id='alphabet'></p>
+    </div>
+    <div>
+        <p>*** Leaderboard ***</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Difficulty</th>
+                    <th>Score</th>
+                    <th>Name</th>
+                </tr>
+                <tbody id='leaderboard'>
+                </tbody>
+            </thead>
+        </table>
+    </div>
+    <script>
+        getLeaderboard();
+        setInterval(getLeaderboard, 60000);
+    </script>
 </body>
+
 </html>
