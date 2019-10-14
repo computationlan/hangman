@@ -9,16 +9,33 @@
 			<fieldset>
   			<legend>Game parameters:</legend>
     		Name:<br>
-    		<input type='text' name='username' value='Name'><br>
-    		Difficulty:
-    		<input type='number' name='difficulty' min='1' max='10'><br>
+    		<input type='text' name='username' value='Anonymous'><br>
+    		{% if request.args.get('share_id') != None %}
+    		<input type='hidden' name='challenge_id' value="{{request.args.get('share_id')}}">
+    		<input type='button' onclick='gameInit(); return false;' value="Accept {{request.args.get('friend_name')}}'s challenge">
+    		{% else %}
+    		Difficulty:<br>
+    		<select name='difficulty'>
+    			<option value='1' selected>1</option>
+    			<option value='2'>2</option>
+    			<option value='3'>3</option>
+    			<option value='4'>4</option>
+    			<option value='5'>5</option>
+    			<option value='6'>6</option>
+    			<option value='7'>7</option>
+    			<option value='8'>8</option>
+    			<option value='9'>9</option>
+    			<option value='10'>10</option>  
+			</select>
     		<input type='button' onclick='gameInit(); return false;' value='New game'>
+    		{% endif %}
   			</fieldset>
 		</form>
 	</div>
 	<div id='game_field' >
 		<p>The objective of the game is to guess the hidden word in as fewer steps as possible. You are allowed up to 6 incorrect guesses.</p>
 		<p id='game_over'></p>
+		<p id='share_link'></p>
 		<img id ='tree'></img>
 		<p id ='challenge'></p>
 		<p id ='alphabet'></p>
@@ -73,7 +90,12 @@
 						drawAlphabet(jsonResponse['wrong_guesses'], jsonResponse['guessed'], jsonResponse['game_over']);
 						if (jsonResponse['game_over']){
 							document.getElementById('game_over').innerHTML = jsonResponse['game_over_message'];
+							document.getElementById('challenge').innerHTML = jsonResponse['challenge'];
 							getLeaderboard();
+							if ('share_id' in jsonResponse){
+								console.log(jsonResponse['share_id'], typeof(jsonResponse['share_id']));
+								document.getElementById('share_link').innerHTML = '<a href="http://localhost:5000/?share_id=' + jsonResponse['share_id'].toString() + '&friend_name=' + jsonResponse['friend_name'] + '">Want to share this challenge with your friend?</a> <a href="http://localhost:5000/">Or play again?</a>' ;
+							}
 						}
 					}
 					};
