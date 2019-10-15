@@ -8,16 +8,6 @@ function updateGameState(response) {
   if (jsonResponse["game_over"]) {
     document.getElementById("challenge").innerHTML = jsonResponse["challenge"];
     getLeaderboard();
-    if ("share_id" in jsonResponse) {
-      document.getElementById("share_link").innerHTML =
-        '<a href="http://localhost:5000/?share_id=' +
-        jsonResponse["share_id"].toString() +
-        "&friend_name=" +
-        jsonResponse["friend_name"] +
-        '">Want to share this challenge with your friend?</a> <a href="http://localhost:5000/">Or play again?</a>';
-    }
-  } else {
-    document.getElementById("share_link").innerHTML = "";
   }
 }
 
@@ -47,8 +37,12 @@ function drawAlphabet(wrong_guesses, guessed, game_over) {
       var xhttp = new XMLHttpRequest();
       xhttp.open("GET", "/guess_handler?letterGuessed=" + letterGuessed, true);
       xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          updateGameState(xhttp.responseText);
+        if (this.readyState == 4) {
+          if (this.status == 200) {
+            updateGameState(xhttp.responseText);
+          } else {
+            alert("Internal server error, please try again later");
+          }
         }
       };
       xhttp.send();
@@ -64,8 +58,12 @@ function gameInit() {
   var xhttp = new XMLHttpRequest();
   xhttp.open("GET", "/game_init?" + data, true);
   xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      updateGameState(xhttp.responseText);
+    if (this.readyState == 4) {
+      if (this.status == 200) {
+        updateGameState(xhttp.responseText);
+      } else {
+        alert("Internal server error, please try again later");
+      }
     }
   };
   xhttp.send();

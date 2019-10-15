@@ -17,5 +17,5 @@ sqlite3 hangman.db "insert into leaderboard (difficulty, score, username) values
 sqlite3 hangman.db "insert into leaderboard (difficulty, score, username) values (8, 0, 'Anonymous');"
 sqlite3 hangman.db "insert into leaderboard (difficulty, score, username) values (9, 0, 'Anonymous');"
 sqlite3 hangman.db "insert into leaderboard (difficulty, score, username) values (10, 0, 'Anonymous');"
-sqlite3 hangman.db "create table challenge_share (share_id integer primary key, challenge text not null, difficulty integer, score integer not null, username text not null);"
+sqlite3 hangman.db "create table challenge_share (share_id integer primary key, challenge text not null, difficulty integer not null, score integer not null, username text not null);"
 

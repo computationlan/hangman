@@ -12,23 +12,23 @@
             <fieldset>
                 <legend>Game parameters:</legend>
                 Name: <br/>
-                <input type='text' name='username' value='Anonymous'> <br/> 
+                <input type='text' name='username' value="{{session.get('username', 'Anonymous')}}"> <br/> 
                 {% if request.args.get('share_id') != None %}
                 <input type='hidden' name='challenge_id' value="{{request.args.get('share_id')}}">
-                <input type='button' onclick='gameInit(); return false;' value="Accept {{request.args.get('friend_name')}}'s challenge"> 
+                <input type='button' onclick='gameInit(); this.disabled = true; return false;' value="Accept {{request.args.get('friend_name')}}'s challenge"> 
                 {% else %} 
                 Difficulty: <br/>
                 <select name='difficulty'>
-                    <option value='1' selected>1</option>
-                    <option value='2'>2</option>
-                    <option value='3'>3</option>
-                    <option value='4'>4</option>
-                    <option value='5'>5</option>
-                    <option value='6'>6</option>
-                    <option value='7'>7</option>
-                    <option value='8'>8</option>
-                    <option value='9'>9</option>
-                    <option value='10'>10</option>
+                    <option value='1'>Child's play</option>
+                    <option value='2'>Super easy</option>
+                    <option value='3'>Easy</option>
+                    <option value='4'>Kinda easy</option>
+                    <option value='5' selected>Medium</option>
+                    <option value='6'>A bit harder</option>
+                    <option value='7'>Quite hard</option>
+                    <option value='8'>Hard</option>
+                    <option value='9'>Very hard</option>
+                    <option value='10'>Impossible</option>
                 </select> 
                 <input type='button' onclick='gameInit(); return false;' value='New game'> 
                 {% endif %}
@@ -38,7 +38,6 @@
     <div id='game_field'>
         <p>The objective of the game is to guess the hidden word in as fewer steps as possible. You are allowed up to 6 incorrect guesses.</p>
         <p id='game_over'></p>
-        <p id='share_link'></p>
         <img width='300' id='tree'></img>
         <p id='challenge'></p>
         <p id='alphabet'></p>
@@ -52,9 +51,9 @@
                     <th>Score</th>
                     <th>Name</th>
                 </tr>
-                <tbody id='leaderboard'>
-                </tbody>
             </thead>
+            <tbody id='leaderboard'>
+            </tbody>
         </table>
     </div>
     <script>
