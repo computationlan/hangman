@@ -7,54 +7,58 @@
 </head>
 
 <body>
-    <div id='game_setup'>
-        <form id='game_init'>
-            <fieldset>
-                <legend>Game parameters:</legend>
-                Name: <br/>
-                <input type='text' name='username' value="{{session.get('username', 'Anonymous')}}"> <br/> 
-                {% if request.args.get('share_id') != None %}
-                <input type='hidden' name='challenge_id' value="{{request.args.get('share_id')}}">
-                <input type='button' onclick='gameInit(); this.disabled = true; return false;' value="Accept {{request.args.get('friend_name')}}'s challenge"> 
-                {% else %} 
-                Difficulty: <br/>
-                <select name='difficulty'>
-                    <option value='1'>Child's play</option>
-                    <option value='2'>Super easy</option>
-                    <option value='3'>Easy</option>
-                    <option value='4'>Kinda easy</option>
-                    <option value='5' selected>Medium</option>
-                    <option value='6'>A bit harder</option>
-                    <option value='7'>Quite hard</option>
-                    <option value='8'>Hard</option>
-                    <option value='9'>Very hard</option>
-                    <option value='10'>Impossible</option>
-                </select> 
-                <input type='button' onclick='gameInit(); return false;' value='New game'> 
-                {% endif %}
-            </fieldset>
-        </form>
+    <div style="float: left; width: 75%">
+        <div id='game_field'>
+            <p>The objective of the game is to guess the hidden word in as fewer steps as possible. You are allowed up to 6 incorrect guesses.</p>
+            <p id='game_over'></p>
+            <img width='300' id='tree'></img>
+            <p id='challenge'></p>
+            <p id='alphabet'></p>
+        </div>
     </div>
-    <div id='game_field'>
-        <p>The objective of the game is to guess the hidden word in as fewer steps as possible. You are allowed up to 6 incorrect guesses.</p>
-        <p id='game_over'></p>
-        <img width='300' id='tree'></img>
-        <p id='challenge'></p>
-        <p id='alphabet'></p>
-    </div>
-    <div>
-        <p>*** Leaderboard ***</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Difficulty</th>
-                    <th>Score</th>
-                    <th>Name</th>
-                </tr>
-            </thead>
-            <tbody id='leaderboard'>
-            </tbody>
-        </table>
+    <div style="float: left; width: 25%">
+        <div id='game_setup'>
+            <form id='game_init'>
+                <fieldset>
+                    <legend>Game parameters:</legend>
+                    Name: <br/>
+                    <input type='text' name='username' value="{{session.get('username', 'Anonymous')}}"> <br/> 
+                    {% if request.args.get('share_id') != None %}
+                    <input type='hidden' name='challenge_id' value="{{request.args.get('share_id')}}">
+                    <input type='button' onclick='gameInit(); this.disabled = true; return false;' value="Accept {{request.args.get('friend_name')}}'s challenge"> 
+                    {% else %} 
+                    Difficulty: <br/>
+                    <select name='difficulty'>
+                        <option value='1'>Child's play</option>
+                        <option value='2'>Super easy</option>
+                        <option value='3'>Easy</option>
+                        <option value='4'>Kinda easy</option>
+                        <option value='5' selected>Medium</option>
+                        <option value='6'>A bit harder</option>
+                        <option value='7'>Quite hard</option>
+                        <option value='8'>Hard</option>
+                        <option value='9'>Very hard</option>
+                        <option value='10'>Impossible</option>
+                    </select> 
+                    <input type='button' onclick='gameInit(); return false;' value='New game'> 
+                    {% endif %}
+                </fieldset>
+            </form>
+        </div>
+        <div>
+            <p>*** Leaderboard ***</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Difficulty</th>
+                        <th>Score</th>
+                        <th>Name</th>
+                    </tr>
+                </thead>
+                <tbody id='leaderboard'>
+                </tbody>
+            </table>
+        </div>
     </div>
     <script>
         getLeaderboard();
